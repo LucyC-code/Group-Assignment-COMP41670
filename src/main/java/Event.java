@@ -2,7 +2,7 @@ public class Event implements Comparable<Event> {
     private double time;
     private int sourceId;
     private String type;  // "ON" or "OFF"
-
+// hello
     public Event(double time, int sourceId, String type) {
         this.time = time;
         this.sourceId = sourceId;
