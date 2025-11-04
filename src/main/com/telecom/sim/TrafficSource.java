@@ -26,6 +26,7 @@ public class TrafficSource {
     public int getId() { return id; }
     public boolean isOn() { return isOn; }
     public void switchState() { isOn = !isOn; }
+    public void setOn(boolean on) {this.isOn = on;}
 
     public double getNextOnDuration()  { return pareto(xmOn,  alphaOn); }
     public double getNextOffDuration() { return pareto(xmOff, alphaOff); }

@@ -75,24 +75,22 @@ public class Simulator {
 
     private void processEvent(Event e) {
         TrafficSource src = sources.get(e.getSourceId());
+        boolean turnOn = (e.getType() == EventType.TURN_ON);
 
-        // flip to the state indicated by event type (TURN_ON means result should be ON)
-        boolean shouldBeOn = (e.getType() == EventType.TURN_ON);
-        if (src.isOn() != !shouldBeOn) { /* nothing fancy, just flip */ }
-        src.switchState();
+        // Explicitly set the state instead of just flipping
+        src.setOn(turnOn);
 
-        // log
-        System.out.printf("t=%.3f: src %d %s%n", currentTime, e.getSourceId(),
-                src.isOn() ? "ON" : "OFF");
+        // Log state change
+        System.out.printf("t=%.3f: src %d %s%n", currentTime, e.getSourceId(), turnOn ? "ON" : "OFF");
 
-        // schedule next switch for this source
-        double dt = src.isOn() ? src.getNextOnDuration() : src.getNextOffDuration();
+        // Schedule the next event for this source
+        double dt = turnOn ? src.getNextOnDuration() : src.getNextOffDuration();
         double tNext = currentTime + dt;
         if (tNext <= endTime) {
             eventQueue.addEvent(new Event(
                     tNext,
                     e.getSourceId(),
-                    src.isOn() ? EventType.TURN_OFF : EventType.TURN_ON
+                    turnOn ? EventType.TURN_OFF : EventType.TURN_ON
             ));
         }
     }
