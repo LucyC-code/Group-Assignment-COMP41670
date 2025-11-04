@@ -1,5 +1,9 @@
 package com.telecom.sim;
 
+import com.telecom.sim.Event;
+import com.telecom.sim.EventType;
+import com.telecom.sim.Simulator;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

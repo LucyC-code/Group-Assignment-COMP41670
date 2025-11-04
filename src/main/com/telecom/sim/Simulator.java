@@ -12,7 +12,7 @@ public class Simulator {
     private final double sampleInterval;
     private final long baseSeed;
 
-    private final List<TrafficSource> sources = new ArrayList<>();
+    private final List<com.telecom.sim.TrafficSource> sources = new ArrayList<>();
     private final EventQueue eventQueue = new EventQueue();
 
     private double nextSampleTime = 0.0;
