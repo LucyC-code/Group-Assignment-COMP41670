@@ -1,8 +1,4 @@
 package com.telecom.sim;
-import com.telecom.sim.Event;
-import com.telecom.sim.EventQueue;
-import com.telecom.sim.EventType;
-import com.telecom.sim.TrafficSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +6,8 @@ import java.util.List;
 public class Simulator {
     private final double endTime;
     private double currentTime = 0.0;
-
     private final int numSources;
+
     private final double alphaOn, xmOn, alphaOff, xmOff;
     private final double sampleInterval;
     private final long baseSeed;
