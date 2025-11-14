@@ -126,7 +126,7 @@ public class Simulator {
                 activeCounts.size(), avg, peak);
     }
 
-    // getters if you want to export CSV later
+    // getters to export CSV later
     public List<Double> getSampleTimes()  { return sampleTimes; }
     public List<Integer> getActiveCounts(){ return activeCounts; }
 }
