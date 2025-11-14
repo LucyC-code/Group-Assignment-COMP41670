@@ -52,18 +52,20 @@ public class Simulator {
         if (sampleInterval > 0) nextSampleTime = sampleInterval;
     }
 
+
+
     public void run() {
         System.out.println("Starting simulation...");
+
+        // This loop runs as long as there are events within the EventQueue
         while (!eventQueue.isEmpty()) {
-            Event next = eventQueue.peek();
+            Event next = eventQueue.peek();                          // peek() tracks the next event time, if it is greater than the endTime, the loop stops.
             if (next.getTime() > endTime) break;
 
-            // sample at fixed intervals up to the next event time
-            sampleUpTo(next.getTime());
+            sampleUpTo(next.getTime());                              // This records how man sources are On at regular intervals up this time event, (it is called in before each event)
 
-            // advance clock and process event
-            Event e = eventQueue.getNextEvent();
-            currentTime = e.getTime();
+            Event e = eventQueue.getNextEvent();                     // Moves the simulator clock (currentTime) to the event's time,
+            currentTime = e.getTime();                               //  and performs the state transition and scheduling of the next event
             processEvent(e);
         }
 
@@ -74,18 +76,20 @@ public class Simulator {
     }
 
     private void processEvent(Event e) {
-        TrafficSource src = sources.get(e.getSourceId());
-        boolean turnOn = (e.getType() == EventType.TURN_ON);
 
-        // Explicitly set the state instead of just flipping
+        // 1. Locate Traffic source and update object's internal state
+        TrafficSource src = sources.get(e.getSourceId());                //locating the traffic source belong to the current event, using SourceId
+        boolean turnOn = (e.getType() == EventType.TURN_ON);             // if event type is Turn On, isOn is set to true else it is set to fasle
         src.setOn(turnOn);
 
         // Log state change
         System.out.printf("t=%.3f: src %d %s%n", currentTime, e.getSourceId(), turnOn ? "ON" : "OFF");
 
-        // Schedule the next event for this source
+        // 2. Generate its next state duration using the heavy-tailed distribution
         double dt = turnOn ? src.getNextOnDuration() : src.getNextOffDuration();
         double tNext = currentTime + dt;
+
+        // 3. Create and queue the corresponding  future event
         if (tNext <= endTime) {
             eventQueue.addEvent(new Event(
                     tNext,

@@ -9,7 +9,7 @@ public class TrafficSource {
     private final double alphaOn, xmOn;
     private final double alphaOff, xmOff;
 
-    // Constructor
+    // Heavy-tailed sampling is stored here
     public TrafficSource(int id, boolean startOn,
                          double alphaOn, double xmOn,
                          double alphaOff, double xmOff,
@@ -28,9 +28,13 @@ public class TrafficSource {
     public void switchState() { isOn = !isOn; }
     public void setOn(boolean on) {this.isOn = on;}
 
+
+    // This is called by the Simulator.processEvent() to ge the time offset
     public double getNextOnDuration()  { return pareto(xmOn,  alphaOn); }
     public double getNextOffDuration() { return pareto(xmOff, alphaOff); }
 
+
+    // the pareto implements the heavy-tailed On/OFF distribution
     private double pareto(double xm, double alpha) {
         // X = xm / U^(1/alpha), U ~ (0,1]
         double u = 1.0 - rng.nextDouble();
