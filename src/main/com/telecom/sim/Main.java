@@ -28,7 +28,7 @@ public class Main {
                     alphaOn, xmOn, alphaOff, xmOff,
                     sampleInterval, baseSeed
             );
-            sim.initialize();
+            sim.initialise();
             sim.run();
         } catch (Exception ex) {
             System.err.println("Input error: " + ex.getMessage());

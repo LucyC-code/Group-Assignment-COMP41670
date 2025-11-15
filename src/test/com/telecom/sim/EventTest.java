@@ -1,6 +1,5 @@
 package com.telecom.sim;
 
-import com.telecom.sim.Event;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 /**

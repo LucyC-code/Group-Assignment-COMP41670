@@ -13,6 +13,10 @@ public class Simulator {
     private final long baseSeed;
 
     private final List<com.telecom.sim.TrafficSource> sources = new ArrayList<>();
+    public TrafficSource getSource(int id) {
+        return sources.get(id);
+    }
+
     private final EventQueue eventQueue = new EventQueue();
 
     private double nextSampleTime = 0.0;
@@ -39,7 +43,7 @@ public class Simulator {
         this.baseSeed = baseSeed;
     }
 
-    public void initialize() {
+    public void initialise() {
         for (int i = 0; i < numSources; i++) {
             boolean startOn = (i % 2 == 0);
             TrafficSource src = new TrafficSource(i, startOn, alphaOn, xmOn, alphaOff, xmOff, baseSeed + i);
@@ -108,7 +112,16 @@ public class Simulator {
         }
     }
 
-    private int countActive() {
+    public int getEventQueueSize() {
+        return eventQueue.size();
+    }
+
+    public Event peekNextEvent() {
+        return eventQueue.peek();
+    }
+
+
+    int countActive() {
         int c = 0;
         for (TrafficSource s : sources) if (s.isOn()) c++;
         return c;
