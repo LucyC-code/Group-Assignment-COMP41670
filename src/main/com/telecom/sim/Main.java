@@ -1,6 +1,12 @@
 package com.telecom.sim;
 
 import java.util.Scanner;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+import com.telecom.sim.Simulator;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -30,6 +36,14 @@ public class Main {
             );
             sim.initialise();
             sim.run();
+
+            // Export simulation data to CSV
+                        writeCSV(
+                                "simulation_output.csv",
+                                sim.getSampleTimes(),
+                                sim.getActiveCounts()
+                        );
+
         } catch (Exception ex) {
             System.err.println("Input error: " + ex.getMessage());
         }
@@ -52,5 +66,20 @@ public class Main {
             }
         }
     }
+    private static void writeCSV(String fileName, List<Double> times, List<Integer> counts) {
+        try (FileWriter writer = new FileWriter(fileName)) {
+            writer.write("Time,ActiveSources\n");
+
+            for (int i = 0; i < times.size(); i++) {
+                writer.write(times.get(i) + "," + counts.get(i) + "\n");
+            }
+
+            System.out.println("CSV file created: " + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 }
