@@ -13,7 +13,6 @@ public class Simulator {
     private final long baseSeed;
 
 
-
     private final List<com.telecom.sim.TrafficSource> sources = new ArrayList<>();
     public TrafficSource getSource(int id) {
         return sources.get(id);
@@ -139,6 +138,16 @@ public class Simulator {
         double avg = sum / (double) activeCounts.size();
         System.out.printf("Samples: %d | Avg active: %.2f | Peak active: %d%n",
                 activeCounts.size(), avg, peak);
+
+
+        double[] series = activeCounts.stream()
+                .mapToDouble(i -> (double) i)
+                .toArray();
+
+        double hurst = HurstEstimator.estimateHurst(series);
+
+        System.out.printf("Estimated Hurst parameter (R/S): %.4f%n", hurst);
+
     }
 
     // getters to export CSV later
