@@ -11,8 +11,13 @@ public class Simulator {
     private final double alphaOn, xmOn, alphaOff, xmOff;
     private final double sampleInterval;
     private final long baseSeed;
+    private final int modelChoice;
 
     private final List<com.telecom.sim.TrafficSource> sources = new ArrayList<>();
+    public TrafficSource getSource(int id) {
+        return sources.get(id);
+    }
+
     private final EventQueue eventQueue = new EventQueue();
 
     private double nextSampleTime = 0.0;
@@ -24,7 +29,8 @@ public class Simulator {
                      double alphaOn, double xmOn,
                      double alphaOff, double xmOff,
                      double sampleInterval,
-                     long baseSeed) {
+                     long baseSeed,
+                     int modelChoice) {
         if (endTime <= 0) throw new IllegalArgumentException("endTime must be > 0");
         if (numSources < 1) throw new IllegalArgumentException("numSources must be >= 1");
         if (xmOn <= 0 || xmOff <= 0) throw new IllegalArgumentException("xm must be > 0");
@@ -37,18 +43,34 @@ public class Simulator {
         this.alphaOff = alphaOff; this.xmOff = xmOff;
         this.sampleInterval = sampleInterval;
         this.baseSeed = baseSeed;
+        this.modelChoice = modelChoice;
     }
 
-    public void initialize() {
+    public void initialise() {
         for (int i = 0; i < numSources; i++) {
             boolean startOn = (i % 2 == 0);
-            TrafficSource src = new TrafficSource(i, startOn, alphaOn, xmOn, alphaOff, xmOff, baseSeed + i);
+            long seed = baseSeed + i;
+            DurationGenerator gen;
+            if (modelChoice == 1) {
+                gen = new ParetoGenerator(alphaOn, xmOn, alphaOff, xmOff, seed);
+            } else {
+                // FGN-like model parameters
+                double baseOn = xmOn;
+                double baseOff = xmOff;
+                double sigmaOn = 1.0;
+                double sigmaOff = 1.0;
+                double phi = 0.9;
+                gen = new FGNGenerator(baseOn, sigmaOn, baseOff, sigmaOff, phi, seed);
+            }
+
+            TrafficSource src = new TrafficSource(i, startOn, gen);
             sources.add(src);
 
             double dt = startOn ? src.getNextOnDuration() : src.getNextOffDuration();
             EventType firstType = startOn ? EventType.TURN_OFF : EventType.TURN_ON;
             eventQueue.addEvent(new Event(currentTime + dt, i, firstType));
         }
+
         if (sampleInterval > 0) nextSampleTime = sampleInterval;
     }
 
@@ -108,7 +130,16 @@ public class Simulator {
         }
     }
 
-    private int countActive() {
+    public int getEventQueueSize() {
+        return eventQueue.size();
+    }
+
+    public Event peekNextEvent() {
+        return eventQueue.peek();
+    }
+
+
+    int countActive() {
         int c = 0;
         for (TrafficSource s : sources) if (s.isOn()) c++;
         return c;
@@ -124,9 +155,19 @@ public class Simulator {
         double avg = sum / (double) activeCounts.size();
         System.out.printf("Samples: %d | Avg active: %.2f | Peak active: %d%n",
                 activeCounts.size(), avg, peak);
+
+
+        double[] series = activeCounts.stream()
+                .mapToDouble(i -> (double) i)
+                .toArray();
+
+        double hurst = HurstEstimator.estimateHurst(series);
+
+        System.out.printf("Estimated Hurst parameter (R/S): %.4f%n", hurst);
+
     }
 
-    // getters if you want to export CSV later
+    // getters to export CSV later
     public List<Double> getSampleTimes()  { return sampleTimes; }
     public List<Integer> getActiveCounts(){ return activeCounts; }
 }

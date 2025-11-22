@@ -5,39 +5,24 @@ import java.util.Random;
 public class TrafficSource {
     private final int id;
     private boolean isOn;
-    private final Random rng;
-    private final double alphaOn, xmOn;
-    private final double alphaOff, xmOff;
+    private final DurationGenerator generator;
 
-    // Heavy-tailed sampling is stored here
-    public TrafficSource(int id, boolean startOn,
-                         double alphaOn, double xmOn,
-                         double alphaOff, double xmOff,
-                         long seed) {
+    public TrafficSource(int id,
+                         boolean startOn,
+                         DurationGenerator generator) {
         this.id = id;
         this.isOn = startOn;
-        this.alphaOn = alphaOn;
-        this.xmOn = xmOn;
-        this.alphaOff = alphaOff;
-        this.xmOff = xmOff;
-        this.rng = new Random(seed);
+        this.generator = generator;
     }
 
     public int getId() { return id; }
+
     public boolean isOn() { return isOn; }
-    public void switchState() { isOn = !isOn; }
-    public void setOn(boolean on) {this.isOn = on;}
 
+    public void setOn(boolean on) { this.isOn = on; }
 
-    // This is called by the Simulator.processEvent() to ge the time offset
-    public double getNextOnDuration()  { return pareto(xmOn,  alphaOn); }
-    public double getNextOffDuration() { return pareto(xmOff, alphaOff); }
+    public double getNextOnDuration()  { return generator.nextOnDuration(); }
 
+    public double getNextOffDuration() { return generator.nextOffDuration(); }
 
-    // the pareto implements the heavy-tailed On/OFF distribution
-    private double pareto(double xm, double alpha) {
-        // X = xm / U^(1/alpha), U ~ (0,1]
-        double u = 1.0 - rng.nextDouble();
-        return xm / Math.pow(u, 1.0 / alpha);
-    }
 }
