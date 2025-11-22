@@ -62,7 +62,7 @@ public class Simulator {
             Event next = eventQueue.peek();                          // peek() tracks the next event time, if it is greater than the endTime, the loop stops.
             if (next.getTime() > endTime) break;
 
-            sampleUpTo(next.getTime());                              // This records how man sources are On at regular intervals up this time event, (it is called in before each event)
+            sampleUpTo(next.getTime());   // no. sources are On at regular intervals up this time event, (it is called in before each event)
 
             Event e = eventQueue.getNextEvent();                     // Moves the simulator clock (currentTime) to the event's time,
             currentTime = e.getTime();                               //  and performs the state transition and scheduling of the next event
