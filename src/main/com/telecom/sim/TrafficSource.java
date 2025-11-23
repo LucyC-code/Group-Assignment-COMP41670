@@ -16,6 +16,7 @@ public class TrafficSource {
     }
 
     public int getId() { return id; }
+    public void switchState() {this.isOn = !this.isOn;}
 
     public boolean isOn() { return isOn; }
 
