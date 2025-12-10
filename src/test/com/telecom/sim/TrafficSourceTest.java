@@ -9,94 +9,91 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TrafficSourceTest {
 
-    private TrafficSource source;
-
-    @BeforeEach
-    void setup() {
-        source = new TrafficSource(
-                1,
-                true,
-                2.0, 1.0,       // alphaOn, xmOn
-                3.0, 2.0,       // alphaOff, xmOff
-                12345L          // seed
-        );
-    }
-
     // -------- Constructor + Getters --------
 
     @Test
     void testConstructorAndGetters() {
-        assertEquals(1, source.getId());
-        assertTrue(source.isOn());
+        DurationGenerator gen = new ParetoGenerator(2.0, 1.0, 3.0, 2.0, 12345L);
+        TrafficSource src = new TrafficSource(1, true, gen);
+
+        assertEquals(1, src.getId());
+        assertTrue(src.isOn());
     }
 
     // -------- State switching --------
 
     @Test
     void testSwitchState() {
-        boolean before = source.isOn();
-        source.switchState();
-        assertNotEquals(before, source.isOn());
-        source.switchState();
-        assertEquals(before, source.isOn());
+        DurationGenerator gen = new ParetoGenerator(2.0, 1.0, 3.0, 2.0, 12345L);
+        TrafficSource src = new TrafficSource(1, true, gen);
+
+        boolean before = src.isOn();
+        src.switchState();
+        assertNotEquals(before, src.isOn());
+        src.switchState();
+        assertEquals(before, src.isOn());
     }
 
     @Test
     void testSetOn() {
-        source.setOn(false);
-        assertFalse(source.isOn());
-        source.setOn(true);
-        assertTrue(source.isOn());
+        DurationGenerator gen = new ParetoGenerator(2.0, 1.0, 3.0, 2.0, 12345L);
+        TrafficSource src = new TrafficSource(1, true, gen);
+
+        src.setOn(false);
+        assertFalse(src.isOn());
+        src.setOn(true);
+        assertTrue(src.isOn());
     }
 
-    // -------- Pareto Behaviour Tests --------
+    // -------- ON/OFF Duration Wrapper Tests (Pareto) --------
 
     @Test
-    void testParetoValuesArePositive() throws Exception {
-        Method m = TrafficSource.class.getDeclaredMethod(
-                "pareto", double.class, double.class
-        );
-        m.setAccessible(true);
+    void testGetNextOnDurationPositive_Pareto() {
+        DurationGenerator gen = new ParetoGenerator(2.0, 1.0, 3.0, 2.0, 111L);
+        TrafficSource src = new TrafficSource(1, true, gen);
 
-        double v1 = (double) m.invoke(source, 1.0, 2.0);
-        double v2 = (double) m.invoke(source, 1.0, 2.0);
-
-        assertTrue(v1 > 0);
-        assertTrue(v2 > 0);
-
-        // Should differ because RNG moves forward
-        assertNotEquals(v1, v2);
-    }
-
-    @Test
-    void testDeterministicSeedProducesSameOutput() throws Exception {
-        TrafficSource s1 = new TrafficSource(1, true, 2,1, 3,2, 999L);
-        TrafficSource s2 = new TrafficSource(1, true, 2,1, 3,2, 999L);
-
-        Method m = TrafficSource.class.getDeclaredMethod(
-                "pareto", double.class, double.class
-        );
-        m.setAccessible(true);
-
-        double a = (double) m.invoke(s1, 1.0, 2.0);
-        double b = (double) m.invoke(s2, 1.0, 2.0);
-
-        assertEquals(a, b, 1e-12);
-    }
-
-    // -------- ON/OFF Duration Wrapper Tests --------
-
-    @Test
-    void testGetNextOnDurationPositive() {
         for (int i = 0; i < 10; i++) {
-            assertTrue(source.getNextOnDuration() > 0);
+            assertTrue(src.getNextOnDuration() > 0);
         }
     }
 
     @Test
-    void testGetNextOffDurationPositive() {
+    void testGetNextOffDurationPositive_Pareto() {
+        DurationGenerator gen = new ParetoGenerator(2.0, 1.0, 3.0, 2.0, 999L);
+        TrafficSource src = new TrafficSource(1, true, gen);
+
         for (int i = 0; i < 10; i++) {
-            assertTrue(source.getNextOffDuration() > 0);
+            assertTrue(src.getNextOffDuration() > 0);
         }
+    }
+
+    // -------- FGN integration tests --------
+
+    @Test
+    void testFGNGeneratorWorksWithTrafficSource() {
+        DurationGenerator gen = new FGNGenerator(1.0, 1.0, 1.0, 1.0, 0.9, 123L);
+        TrafficSource src = new TrafficSource(2, true, gen);
+
+        double on  = src.getNextOnDuration();
+        double off = src.getNextOffDuration();
+
+        assertTrue(on > 0);
+        assertTrue(off > 0);
+    }
+
+    @Test
+    void testTrafficSourceUsesInjectedGenerator() {
+        // Fake generator for controlled output
+        DurationGenerator fakeGen = new DurationGenerator() {
+            @Override
+            public double nextOnDuration() { return 5.5; }
+            @Override
+            public double nextOffDuration() { return 7.7; }
+        };
+
+        TrafficSource src = new TrafficSource(1, true, fakeGen);
+
+        assertEquals(5.5, src.getNextOnDuration(), 1e-9);
+        assertEquals(7.7, src.getNextOffDuration(), 1e-9);
     }
 }
