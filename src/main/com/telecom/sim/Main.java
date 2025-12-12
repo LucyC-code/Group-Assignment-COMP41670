@@ -5,14 +5,28 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-import com.telecom.sim.Simulator;
-
-
 public class Main {
     public static void main(String[] args) {
         try (Scanner sc = new Scanner(System.in)) {
-            int numSources = (int) readNumber(sc, "Number of sources (or q to quit): ");
-            double endTime = readNumber(sc, "Simulation duration (s): ");
+            int numSources;
+            while (true) {
+                numSources = (int) readNumber(sc, "Number of sources (or q to quit): ");
+                if (numSources <= 0) {
+                    System.out.println("Number of sources must be greater than 0.");
+                } else {
+                    break;
+                }
+            }
+            double endTime;
+            while (true) {
+                endTime = readNumber(sc, "Simulation duration (s): ");
+                if (endTime <= 0) {
+                    System.out.println("Simulation duration must be greater than 0.");
+                } else {
+                    break;
+                }
+            }
+
 
             double alphaOn = readNumber(sc, "Pareto alpha ON: ");
             if (alphaOn <= 1.0) {
@@ -20,15 +34,50 @@ public class Main {
                 alphaOn = readNumber(sc, "Pareto alpha ON: ");
             }
 
-            double xmOn    = readNumber(sc, "Pareto xm ON: ");
+            double xmOn;
+            while (true) {
+                xmOn = readNumber(sc, "Pareto xm ON: ");
+                if (xmOn <= 0) {
+                    System.out.println("Pareto xm ON must be greater than 0.");
+                } else {
+                    break;
+                }
+            }
 
-            double alphaOff = readNumber(sc, "Pareto alpha OFF: ");
-            double xmOff    = readNumber(sc, "Pareto xm OFF: ");
+
+            double alphaOff;
+            while (true) {
+                alphaOff = readNumber(sc, "Pareto alpha OFF: ");
+                if (alphaOff <= 1.0) {
+                    System.out.println("alphaOff must be > 1 for a finite mean. Please enter a new value.");
+                } else {
+                    break;
+                }
+            }
+
+            double xmOff;
+            while (true) {
+                xmOff = readNumber(sc, "Pareto xm OFF: ");
+                if (xmOff <= 0) {
+                    System.out.println("Pareto xm OFF must be greater than 0.");
+                } else {
+                    break;
+                }
+            }
+
 
             double sampleInterval = readNumber(sc, "Sampling interval (<=0 to disable): ");
 
-            System.out.print("Traffic model (1 = Pareto, 2 = FGN-like): ");
-            int modelChoice = sc.nextInt();
+            int modelChoice;
+            while (true) {
+                modelChoice = (int) readNumber(sc, "Traffic model (1 = Pareto, 2 = FGN-like): ");
+                if (modelChoice != 1 && modelChoice != 2) {
+                    System.out.println("Traffic model must be 1 (Pareto) or 2 (FGN-like).");
+                } else {
+                    break;
+                }
+            }
+
 
             long baseSeed = 42L;
 
@@ -83,7 +132,5 @@ public class Main {
             e.printStackTrace();
         }
     }
-
-
 
 }

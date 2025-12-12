@@ -18,7 +18,7 @@ public class Simulator {
         return sources.get(id);
     }
 
-    private final EventQueue eventQueue = new EventQueue();
+    final EventQueue eventQueue = new EventQueue();
 
     private double nextSampleTime = 0.0;
     private final List<Double> sampleTimes = new ArrayList<>();
@@ -97,7 +97,12 @@ public class Simulator {
         printResults();
     }
 
-    private void processEvent(Event e) {
+    void processEvent(Event e) {
+
+        if (e.getTime() > endTime) {
+            return; // ignore invalid events
+        }
+
 
         // 1. Locate Traffic source and update object's internal state
         TrafficSource src = sources.get(e.getSourceId());                //locating the traffic source belong to the current event, using SourceId

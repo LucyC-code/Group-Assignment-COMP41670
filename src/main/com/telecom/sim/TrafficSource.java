@@ -15,6 +15,8 @@ public class TrafficSource {
         this.generator = generator;
     }
 
+
+
     public int getId() { return id; }
     public void switchState() {this.isOn = !this.isOn;}
 

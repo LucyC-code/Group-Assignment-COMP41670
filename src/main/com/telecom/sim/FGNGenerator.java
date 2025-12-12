@@ -21,6 +21,7 @@ public class FGNGenerator implements DurationGenerator {
     private double prevOnZ  = 0.0;
     private double prevOffZ = 0.0;
 
+
     public FGNGenerator(double baseOn, double sigmaOn,
                                  double baseOff, double sigmaOff,
                                  double phi,

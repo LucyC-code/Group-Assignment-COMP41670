@@ -11,6 +11,7 @@ public final class Event implements Comparable<Event> {
         this.type = type;
     }
 
+
     public double getTime() { return time; }
     public int getSourceId() { return sourceId; }
     public EventType getType() { return type; }

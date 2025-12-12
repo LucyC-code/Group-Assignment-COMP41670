@@ -21,6 +21,42 @@ class FGNGeneratorTest {
     }
 
     @Test
+    void constructorRejectsPhiTooLow() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new FGNGenerator(1.0, 1.0, 1.0, 1.0, 0.0, 1L)
+        );
+    }
+
+    @Test
+    void onDurationIsClampedToMinimum() {
+        DurationGenerator gen =
+                new FGNGenerator(-1.0, 1.0, 1.0, 1.0, 0.5, 42L);
+
+        double on = gen.nextOnDuration();
+        assertEquals(1e-6, on, 0.0);
+    }
+
+    @Test
+    void offDurationIsClampedToMinimum() {
+        DurationGenerator gen =
+                new FGNGenerator(1.0, 1.0, -1.0, 1.0, 0.5, 42L);
+
+        double off = gen.nextOffDuration();
+        assertEquals(1e-6, off, 0.0);
+    }
+
+
+
+    @Test
+    void constructorRejectsPhiTooHigh() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new FGNGenerator(1.0, 1.0, 1.0, 1.0, 1.0, 1L)
+        );
+    }
+
+
+
+    @Test
     void deterministicForSameSeed() {
         DurationGenerator gen1 =
                 new FGNGenerator(1.0, 1.0, 1.0, 1.0, 0.9, 999L);
